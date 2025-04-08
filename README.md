@@ -1,14 +1,15 @@
 # GDP Visualization App
 
-Interactive visualization of global GDP data sourced from Wikipedia.
+Interactive visualization of global GDP data sourced directly from the International Monetary Fund (IMF).
 
 ## Features
 
-- Scrapes GDP data from Wikipedia's "List of countries by GDP (nominal)" page
+- Fetches GDP data directly from the IMF's World Economic Outlook database
 - Displays interactive bar charts of countries' GDP data
-- Allows users to select different years to view data
-- Option to filter top N countries or view all data
+- Allows users to select different years (2022-2029) to view data
+- Pagination with adjustable countries per page (25, 50, 100, or All)
 - Interactive table with the underlying data
+- Clean, modern UI with responsive design
 
 ## Installation
 
@@ -36,11 +37,11 @@ This will start a local web server and open the application in your default web 
 
 ## Data Source
 
-The application scrapes data from Wikipedia's [List of countries by GDP (nominal)](<https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)>) page, specifically using the IMF estimates table.
+The application fetches data directly from the IMF's [World Economic Outlook Database](https://www.imf.org/en/Publications/WEO/weo-database/2024/October), which includes GDP projections from 2022 to 2029.
 
 ## Technologies Used
 
-- **Beautiful Soup**: Web scraping library for parsing HTML content
 - **Pandas**: Data manipulation and analysis
 - **Streamlit**: Web application framework
 - **Plotly**: Interactive visualization library
+- **Requests/Pandas**: Data fetching from IMF website
