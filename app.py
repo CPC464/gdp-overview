@@ -442,6 +442,72 @@ def create_gdp_chart(df, selected_year, countries_per_page=25, page=0):
     return fig
 
 
+def create_gdp_map(df, selected_year):
+    """
+    Create a choropleth map visualization of GDP data
+
+    Args:
+        df: Processed DataFrame with GDP data
+        selected_year: Selected year for the data
+
+    Returns:
+        Plotly figure object
+    """
+    if df is None or df.empty:
+        return None
+
+    # Create choropleth map using Plotly
+    fig = px.choropleth(
+        df,
+        locations="Country",  # Use country names
+        locationmode="country names",  # Match names to country boundaries
+        color="GDP (Billions USD)",
+        hover_name="Country",
+        color_continuous_scale="YlGnBu",  # Yellow-Green-Blue colorscale with 100 increments
+        range_color=[0, df["GDP (Billions USD)"].max()],  # Full range of values
+        title=f"Global GDP Distribution {selected_year} (USD Billions)",
+        labels={"GDP (Billions USD)": "GDP (Billions USD)"},
+        projection="natural earth",  # Use a more natural looking projection
+    )
+
+    # Customize the appearance
+    fig.update_layout(
+        coloraxis_colorbar=dict(
+            title="GDP (Billions USD)",
+            tickfont={"size": 12, "color": "#495057"},
+            titlefont={"size": 14, "color": "#495057"},
+            len=0.5,  # Make the colorbar shorter
+            # Use a logarithmic scale to better show the range of values
+            tickvals=[100, 1000, 5000, 10000, 20000, 30000],
+            ticktext=["100", "1.000", "5.000", "10.000", "20.000", "30.000"],
+            # Increase number of color segments for more granularity
+            nticks=100,
+        ),
+        margin=dict(l=0, r=0, t=50, b=0),
+        geo=dict(
+            showframe=False,
+            showcountries=True,
+            showcoastlines=True,
+            projection_type="equirectangular",
+            landcolor="rgb(240, 240, 240)",
+            oceancolor="rgb(220, 240, 255)",
+            coastlinecolor="rgb(150, 150, 150)",
+            countrycolor="rgb(150, 150, 150)",
+        ),
+        height=600,
+        # Improve the appearance of the plot with better styling
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        title={
+            "font": {"size": 18, "color": "#212529", "family": "Arial, sans-serif"},
+            "x": 0.5,
+            "xanchor": "center",
+        },
+    )
+
+    return fig
+
+
 def pagination_controls(total_items, items_per_page, current_page, location="top"):
     """Create pagination controls
 
@@ -520,22 +586,18 @@ def pagination_controls(total_items, items_per_page, current_page, location="top
             # Use a unique key for each location - both will update the same session state variable
             selector_key = f"countries_per_page_{location}"
 
-            # Create a select box with a unique key
-            selected_count = st.selectbox(
-                "Countries per page:",
-                options=["25", "50", "100", "All"],
-                index=(
-                    0
-                    if items_per_page == 25
-                    else (
-                        1 if items_per_page == 50 else 2 if items_per_page == 100 else 3
-                    )
-                ),
+            # Initialize the selector key if it doesn't exist
+            if selector_key not in st.session_state:
+                st.session_state[selector_key] = st.session_state.countries_per_page
+
+            # Create the countries per page selector
+            st.selectbox(
+                "Show",
+                ["25", "50", "100", "All"],
                 key=selector_key,
+                label_visibility="collapsed",
                 on_change=reset_pagination_with_value,
-                kwargs={
-                    "value": selector_key
-                },  # Pass the key as a parameter to the callback
+                args=(selector_key,),
             )
 
             # Update the global session state
@@ -656,8 +718,8 @@ def main():
     if st.session_state.current_page >= total_pages:
         st.session_state.current_page = 0
 
-    # Create tabs for chart and table with custom styling
-    tab1, tab2 = st.tabs(["📊 Chart", "📋 Table"])
+    # Create tabs for chart, map, and table with custom styling
+    tab1, tab2, tab3 = st.tabs(["📊 Chart", "🗺️ Map", "📋 Table"])
 
     with tab1:  # Chart tab
         st.markdown('<div class="content-container">', unsafe_allow_html=True)
@@ -683,7 +745,18 @@ def main():
             location="chart",
         )
 
-    with tab2:  # Table tab
+    with tab2:  # Map tab
+        st.markdown('<div class="content-container">', unsafe_allow_html=True)
+
+        # Display the map visualization
+        map_fig = create_gdp_map(processed_data, selected_year)
+
+        if map_fig:
+            st.plotly_chart(map_fig, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with tab3:  # Table tab
         st.markdown('<div class="content-container">', unsafe_allow_html=True)
 
         # Show the data table for the current page
