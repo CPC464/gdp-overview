@@ -5,11 +5,9 @@ Interactive visualization of global GDP data sourced directly from the Internati
 ## Features
 
 - Fetches GDP data directly from the IMF's World Economic Outlook database
-- Displays interactive bar charts of countries' GDP data
+- Displays bar chart, map and table of countries' GDP data
 - Allows users to select different years (2022-2029) to view data
 - Pagination with adjustable countries per page (25, 50, 100, or All)
-- Interactive table with the underlying data
-- Clean, modern UI with responsive design
 
 ## Installation
 
